@@ -5,6 +5,18 @@ require 'uri'
 require 'fileutils'
 require 'rspec/core/rake_task'
 
+# Determine whether we can use some future parse specific
+# functionality (e.g. puppet-strings)
+puppet_version = ENV['PUPPET_VERSION'] || '~> 3.8.0'
+future = Gem::Version.new(puppet_version.split.last) >= Gem::Version.new('3.7.0')
+
+if future
+  require 'puppet-strings/rake_tasks'
+  require 'puppet-strings/rake_tasks/generate'
+else
+  require 'puppet-doc-lint/rake_task'
+end
+
 module TempFixForRakeLastComment
   def last_comment
     last_description
@@ -14,15 +26,26 @@ Rake::Application.send :include, TempFixForRakeLastComment
 
 exclude_paths = [
   "pkg/**/*",
-  "vendor/**/*",
-  "spec/**/*",
+  "spec/**/*"
 ]
-
-require 'puppet-doc-lint/rake_task'
-PuppetDocLint.configuration.ignore_paths = exclude_paths
 
 require 'puppet-lint/tasks/puppet-lint'
 require 'puppet-syntax/tasks/puppet-syntax'
+
+if future
+  PuppetStrings::RakeTasks::Generate.new(:documentation) do |task|
+    # Disable strings.json output
+    task.options = {:list_undoc => true}
+  end
+else
+  desc 'Run code documentation tests'
+  task :documentation do
+    testfiles = FileList['**/*.pp'].exclude(exclude_paths)
+    runner = PuppetDocLint::Runner.new
+    results = runner.run(testfiles)
+    results.each { |result| result.result_report }
+  end
+end
 
 PuppetSyntax.exclude_paths = exclude_paths
 PuppetSyntax.future_parser = true if ENV['FUTURE_PARSER'] == 'true'

@@ -13,3 +13,7 @@ log
 *.rpm
 *.deb
 *.tar.gz
+
+doc
+.yardoc
+.yardwarns

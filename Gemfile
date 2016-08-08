@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 
 puppetversion = ENV['PUPPET_VERSION'] || '~> 3.8.0'
+future = Gem::Version.new(puppetversion.split.last) >= Gem::Version.new('3.7.0')
+
 gem 'puppet', puppetversion, :require => false
 
 gem 'beaker'
@@ -25,6 +27,10 @@ gem 'rspec-puppet-facts'
 gem 'rspec-puppet-utils'
 gem 'rspec-retry'
 gem 'webmock'
+
+gem 'puppet-strings',
+     :git => 'https://github.com/puppetlabs/puppetlabs-strings.git',
+     :ref => '138dc25' if future
 
 # Extra Puppet-lint gems
 gem 'puppet-lint-appends-check', :require => false

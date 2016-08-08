@@ -21,7 +21,7 @@ endif
 clean:
 	bundle exec rake spec_clean
 	bundle exec rake artifacts:clean
-	rm -rf .bundle .vendor
+	rm -rf .bundle .vendor doc
 
 .PHONY: clean-logs
 clean-logs:
