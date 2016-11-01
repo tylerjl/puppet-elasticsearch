@@ -505,6 +505,15 @@ class elasticsearch(
     }
   }
 
+  $_es_version = guess_es_version($package_url, $version, $repo_version)
+  if versioncmp($_es_version, '5.0') >= 0 {
+    $_opt_flag = 'E'
+    $_pre_5 = false
+  } else {
+    $_opt_flag = 'Des.'
+    $_pre_5 = true
+  }
+
   # Various parameters governing API access to Elasticsearch, handling
   # deprecated params.
   validate_string($api_protocol, $api_host)

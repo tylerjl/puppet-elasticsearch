@@ -146,10 +146,11 @@ define elasticsearch::service::systemd(
     # init file from template
     if ($init_template != undef) {
 
-      $user              = $elasticsearch::elasticsearch_user
-      $group             = $elasticsearch::elasticsearch_group
-      $pid_dir           = $elasticsearch::pid_dir
       $defaults_location = $elasticsearch::defaults_location
+      $group             = $elasticsearch::elasticsearch_group
+      $opt_flag          = $elasticsearch::_opt_flag
+      $pid_dir           = $elasticsearch::pid_dir
+      $user              = $elasticsearch::elasticsearch_user
 
       if ($new_init_defaults != undef and is_hash($new_init_defaults) and has_key($new_init_defaults, 'MAX_OPEN_FILES')) {
         $nofile = $new_init_defaults['MAX_OPEN_FILES']
