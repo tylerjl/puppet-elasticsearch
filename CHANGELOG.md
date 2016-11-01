@@ -6,6 +6,7 @@
 
 #### Bugfixes
 * Update the apt::source call to not cause deprecation warnings
+* Pass correct command-line default option flags to version 5 of Elasticsearch
 
 #### Changes
 
