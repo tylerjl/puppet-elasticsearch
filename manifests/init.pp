@@ -472,6 +472,19 @@ class elasticsearch(
     if ($logging_config != undef) {
       validate_hash($logging_config)
     }
+
+    # Derive the managed ES version
+    $_es_version = guess_es_version($package_url, $version, $repo_version)
+    if versioncmp($_es_version, '5.0') >= 0 {
+      $_opt_flag = 'E'
+      $_pre_5 = false
+    } else {
+      $_opt_flag = 'Des.'
+      $_pre_5 = true
+    }
+  } else {
+    $_opt_flag = 'Des.'
+    $_pre_5 = undef
   }
 
   # java install validation
@@ -503,15 +516,6 @@ class elasticsearch(
         $pkg_version = $version
       }
     }
-  }
-
-  $_es_version = guess_es_version($package_url, $version, $repo_version)
-  if versioncmp($_es_version, '5.0') >= 0 {
-    $_opt_flag = 'E'
-    $_pre_5 = false
-  } else {
-    $_opt_flag = 'Des.'
-    $_pre_5 = true
   }
 
   # Various parameters governing API access to Elasticsearch, handling
