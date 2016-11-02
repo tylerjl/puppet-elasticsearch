@@ -20,7 +20,7 @@ module Puppet::Parser::Functions
       next unless str.is_a? String
 
       # Father, forgive me
-      if /^(?<version>[0-9]+(?:\.[0-9a-z]+)*)$|-(?<version>[0-9.]+)\.[0-9a-z]+$/ =~ str
+      if /-?(?<version>[0-9]+(?:[.](?:[0-9]+|[a-z]))*)(?:-[0-9]+)?(?:[.][0-9a-z]+)?$/ =~ str
         return version
       end
     end
