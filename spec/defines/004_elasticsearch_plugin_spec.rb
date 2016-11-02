@@ -14,6 +14,7 @@ describe 'elasticsearch::plugin', :type => 'define' do
 
   let(:pre_condition) {%q{
     class { "elasticsearch":
+      version => '2.0.0',
       config => {
         "node" => {
           "name" => "test"
@@ -132,7 +133,9 @@ describe 'elasticsearch::plugin', :type => 'define' do
 
     context 'restart_on_change set to false (default)' do
       let(:pre_condition) { %q{
-        class { "elasticsearch": }
+        class { "elasticsearch":
+          version => '2.0.0'
+        }
 
         elasticsearch::instance { 'es-01': }
       }}
@@ -147,6 +150,7 @@ describe 'elasticsearch::plugin', :type => 'define' do
     context 'restart_on_change set to true' do
       let(:pre_condition) { %q{
         class { "elasticsearch":
+          version => '2.0.0',
           restart_on_change => true,
         }
 
@@ -163,6 +167,7 @@ describe 'elasticsearch::plugin', :type => 'define' do
     context 'restart_plugin_change set to false (default)' do
       let(:pre_condition) { %q{
         class { "elasticsearch":
+          version => '2.0.0',
           restart_plugin_change => false,
         }
 
@@ -179,6 +184,7 @@ describe 'elasticsearch::plugin', :type => 'define' do
     context 'restart_plugin_change set to true' do
       let(:pre_condition) { %q{
         class { "elasticsearch":
+          version => '2.0.0',
           restart_plugin_change => true,
         }
 
@@ -222,6 +228,7 @@ describe 'elasticsearch::plugin', :type => 'define' do
 
         let(:pre_condition) { %q{
           class { 'elasticsearch':
+            version => '2.0.0',
             proxy_url => 'https://es.local:8080',
           }
         }}
@@ -260,6 +267,7 @@ describe 'elasticsearch::plugin', :type => 'define' do
 
         let(:pre_condition) { %q{
           class { 'elasticsearch':
+            version => '2.0.0',
             proxy_url => 'http://elastic:password@es.local:8080',
           }
         }}
@@ -278,7 +286,9 @@ describe 'elasticsearch::plugin', :type => 'define' do
     describe 'present' do
       let(:title) { 'head' }
       let(:pre_condition) {%q{
-        class { 'elasticsearch': }
+        class { 'elasticsearch':
+          version => '2.0.0'
+        }
         elasticsearch::instance { 'es-01': }
       }}
       let :params do {

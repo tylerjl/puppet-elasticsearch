@@ -3,7 +3,8 @@ require 'spec_helper'
 describe 'elasticsearch', :type => 'class' do
 
   default_params = {
-    :config  => { 'node.name' => 'foo' }
+    :config  => { 'node.name' => 'foo' },
+    :version => '2.0.0'
   }
 
   facts = {

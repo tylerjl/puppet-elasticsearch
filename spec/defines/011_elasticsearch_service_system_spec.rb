@@ -23,7 +23,12 @@ describe 'elasticsearch::service::systemd', :type => 'define' do
           :common => ''
       }) }
       let(:title) { 'es-01' }
-      let(:pre_condition) { 'class {"elasticsearch": config => { "node" => {"name" => "test" }}}' }
+      let(:pre_condition) {%q{
+        class { "elasticsearch":
+          config => { "node" => {"name" => "test" }},
+          version => '5.0.0',
+        }
+      }}
 
       if facts[:operatingsystem] == 'OpenSuSE' and
         facts[:operatingsystemrelease].to_i >= 13
@@ -93,6 +98,7 @@ describe 'elasticsearch::service::systemd', :type => 'define' do
         context 'restarts when "restart_on_change" is true' do
           let(:pre_condition) { %q{
             class { "elasticsearch":
+              version => '5.0.0',
               config => { "node" => {"name" => "test" }},
               restart_on_change => true
             }
@@ -147,6 +153,7 @@ describe 'elasticsearch::service::systemd', :type => 'define' do
         context 'does not restart when "restart_on_change" is false' do
           let(:pre_condition) { %q{
             class { "elasticsearch":
+              version => '5.0.0',
               config => { "node" => {"name" => "test" }},
             }
           }}
@@ -169,7 +176,12 @@ describe 'elasticsearch::service::systemd', :type => 'define' do
       end
 
       context "Init file" do
-        let(:pre_condition) { 'class {"elasticsearch": config => { "node" => {"name" => "test" }} } ' }
+        let(:pre_condition) {%q{
+          class { "elasticsearch":
+            version => '5.0.0',
+            config => { "node" => {"name" => "test" }}
+          }
+        }}
 
         context "Via template" do
           let :params do {
@@ -185,6 +197,7 @@ describe 'elasticsearch::service::systemd', :type => 'define' do
         context 'restarts when "restart_on_change" is true' do
           let(:pre_condition) { %q{
             class { "elasticsearch":
+              version => '5.0.0',
               config => { "node" => {"name" => "test" }},
               restart_on_change => true
             }
@@ -213,6 +226,7 @@ describe 'elasticsearch::service::systemd', :type => 'define' do
         context 'does not restart when "restart_on_change" is false' do
           let(:pre_condition) { %q{
             class { "elasticsearch":
+              version => '5.0.0',
               config => { "node" => {"name" => "test" }},
             }
           }}

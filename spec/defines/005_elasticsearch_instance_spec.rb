@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'elasticsearch::instance', :type => 'define' do
 
   let(:title) { 'es-01' }
-  let(:pre_condition) { 'class { "elasticsearch": }' }
+  let(:pre_condition) { 'class { "elasticsearch": version => "5.0.0" }' }
 
   on_supported_os.each do |os, facts|
 
@@ -56,6 +56,7 @@ describe 'elasticsearch::instance', :type => 'define' do
         :init_defaults => {
           "CONF_DIR"  => "/etc/elasticsearch/es-01",
           "CONF_FILE" => "/etc/elasticsearch/es-01/elasticsearch.yml",
+          "DATA_DIR"  => "$ES_HOME/data",
           "LOG_DIR"   => "/var/log/elasticsearch/es-01",
           "ES_HOME"   => "/usr/share/elasticsearch"
         }
@@ -100,7 +101,12 @@ describe 'elasticsearch::instance', :type => 'define' do
     end
 
     context 'happen when restart_on_change is true' do
-      let(:pre_condition) { 'class { "elasticsearch": restart_on_change => true }' }
+      let(:pre_condition) {%q{
+        class { "elasticsearch":
+          version => '5.0.0',
+          restart_on_change => true
+        }
+      }}
 
       it { should contain_datacat(
         '/etc/elasticsearch/es-01/elasticsearch.yml'
@@ -111,8 +117,11 @@ describe 'elasticsearch::instance', :type => 'define' do
     end
 
     context 'on package change' do
-      let(:pre_condition) { %q{
-        class { "elasticsearch": restart_package_change => true }
+      let(:pre_condition) {%q{
+        class { "elasticsearch":
+          version => '5.0.0',
+          restart_package_change => true
+        }
       }}
 
       it { should_not contain_datacat(
@@ -124,8 +133,11 @@ describe 'elasticsearch::instance', :type => 'define' do
     end
 
     context 'on config change' do
-      let(:pre_condition) { %q{
-        class { "elasticsearch": restart_config_change => true }
+      let(:pre_condition) {%q{
+        class { "elasticsearch":
+          version => '5.0.0',
+          restart_config_change => true
+        }
       }}
 
       it { should contain_datacat(
@@ -156,6 +168,7 @@ describe 'elasticsearch::instance', :type => 'define' do
     context 'set in main class' do
       let(:pre_condition) { <<-EOS
         class { "elasticsearch":
+          version => '5.0.0',
           configdir => "/etc/elasticsearch-config"
         }
       EOS
@@ -208,6 +221,7 @@ describe 'elasticsearch::instance', :type => 'define' do
     context 'single from main config ' do
       let(:pre_condition) { <<-EOS
         class { "elasticsearch":
+          version => '5.0.0',
           datadir => "/var/lib/elasticsearch-data"
         }
       EOS
@@ -233,6 +247,7 @@ describe 'elasticsearch::instance', :type => 'define' do
     context 'multiple from main config' do
       let(:pre_condition) { <<-EOS
         class { "elasticsearch":
+          version => '5.0.0',
           datadir => [
             "/var/lib/elasticsearch-data01",
             "/var/lib/elasticsearch-data02"
@@ -313,6 +328,7 @@ describe 'elasticsearch::instance', :type => 'define' do
     context "single from main config " do
       let(:pre_condition) { <<-EOS
         class { "elasticsearch":
+          version => '5.0.0',
           logdir => "/var/log/elasticsearch-logs"
         }
       EOS
@@ -378,6 +394,7 @@ describe 'elasticsearch::instance', :type => 'define' do
       context 'config' do
         let(:pre_condition) { <<-EOS
           class { "elasticsearch":
+            version => '5.0.0',
             logging_config => {
               "index.search.slowlog" => "DEBUG, index_search_slow_log_file"
             }
@@ -391,6 +408,7 @@ describe 'elasticsearch::instance', :type => 'define' do
       context 'logging file ' do
         let(:pre_condition) { <<-EOS
           class { "elasticsearch":
+            version => '5.0.0',
             logging_file => "puppet:///path/to/logging.yml"
           }
         EOS
@@ -425,6 +443,7 @@ describe 'elasticsearch::instance', :type => 'define' do
     describe 'rollingFile apender' do
       let(:pre_condition) {%q{
         class { 'elasticsearch':
+          version                       => '5.0.0',
           file_rolling_type             => 'rollingFile',
           rolling_file_max_backup_index => 10,
           rolling_file_max_file_size    => '100MB',
@@ -445,6 +464,7 @@ describe 'elasticsearch::instance', :type => 'define' do
 
     let(:pre_condition) { <<-EOS
       class { "elasticsearch":
+        version => '5.0.0',
         elasticsearch_user => "myesuser",
         elasticsearch_group => "myesgroup"
       }
@@ -460,7 +480,12 @@ describe 'elasticsearch::instance', :type => 'define' do
 
   context 'setting different service status then main class' do
 
-    let(:pre_condition) { 'class {"elasticsearch": status => "enabled" }'  }
+    let(:pre_condition) {%q{
+      class { "elasticsearch":
+        version => '5.0.0',
+        status => "enabled"
+      }
+    }}
 
     context 'status option' do
 
@@ -483,6 +508,7 @@ describe 'elasticsearch::instance', :type => 'define' do
     context 'override in main class' do
       let(:pre_condition) { <<-EOS
         class { "elasticsearch":
+          version => '5.0.0',
           init_template => "elasticsearch/etc/init.d/elasticsearch.systemd.erb"
         }
       EOS
@@ -497,6 +523,7 @@ describe 'elasticsearch::instance', :type => 'define' do
     context 'inherited' do
       let(:pre_condition) {%q{
         class { 'elasticsearch':
+          version => '5.0.0',
           system_key => '/tmp/key'
         }
       }}

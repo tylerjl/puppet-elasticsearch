@@ -12,7 +12,12 @@ describe 'elasticsearch::script', :type => 'define' do
   } end
 
   let(:title) { 'foo' }
-  let(:pre_condition) { 'class {"elasticsearch": config => { "node" => {"name" => "test" }}}'}
+  let(:pre_condition) {%q{
+    class { "elasticsearch":
+      version => '5.0.0',
+      config => { "node" => {"name" => "test" }}
+    }
+  }}
 
   context "Add a script" do
 

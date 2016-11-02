@@ -51,7 +51,9 @@ describe 'elasticsearch::shield::role' do
   describe 'collector ordering' do
     describe 'when present' do
       let(:pre_condition) {%q{
-        class { 'elasticsearch': }
+        class { 'elasticsearch':
+          version => '5.0.0',
+        }
         elasticsearch::instance { 'es-01': }
         elasticsearch::plugin { 'shield': instances => 'es-01' }
         elasticsearch::template { 'foo': content => {"foo" => "bar"} }
@@ -73,7 +75,9 @@ describe 'elasticsearch::shield::role' do
 
     describe 'when absent' do
       let(:pre_condition) {%q{
-        class { 'elasticsearch': }
+        class { 'elasticsearch':
+          version => '5.0.0',
+        }
         elasticsearch::instance { 'es-01': }
         elasticsearch::plugin { 'shield':
           ensure => 'absent',

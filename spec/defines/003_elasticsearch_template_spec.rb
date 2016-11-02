@@ -13,7 +13,7 @@ describe 'elasticsearch::template', :type => 'define' do
 
   let(:title) { 'foo' }
   let(:pre_condition) { <<-EOS
-    class { 'elasticsearch' : }
+    class { 'elasticsearch' : version => '5.0.0' }
   EOS
   }
 
@@ -78,6 +78,7 @@ describe 'elasticsearch::template', :type => 'define' do
         api_ca_file => '/foo/bar.pem',
         api_ca_path => '/foo/',
         validate_tls => false,
+        version => '5.0.0',
       }
     EOS
     }
