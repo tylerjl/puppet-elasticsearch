@@ -16,12 +16,14 @@ module Puppet::Parser::Functions
       raise Puppet::ParseError, ("guess_es_version(): wrong number of arguments (#{args.length}; must be at least 1)")
     end
 
+    # Father, forgive me
+    regex = /-?(?<version>[0-9]+(?:[.](?:[0-9]+|[a-z]))*)(?:-[0-9]+)?(?:[.](?=[a-z])[0-9a-z]+)*$/
+
     args.each do |str|
       next unless str.is_a? String
 
-      # Father, forgive me
-      if /-?(?<version>[0-9]+(?:[.](?:[0-9]+|[a-z]))*)(?:-[0-9]+)?(?:[.](?=[a-z])[0-9a-z]+)*$/ =~ str
-        return version
+      if (m = regex.match str)
+        return m[1] if not m[1].nil?
       end
     end
 
