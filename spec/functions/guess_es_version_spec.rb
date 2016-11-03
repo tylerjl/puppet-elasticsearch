@@ -25,12 +25,15 @@ describe 'guess_es_version' do
     )],
     'package urls' => {
       'https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.4.2.deb' => '1.4.2',
+      'http://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.3.1.noarch.rpm' => '1.3.1',
+      'https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.4.2-1.deb' => '1.4.2',
+      'http://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.3.1-1.noarch.rpm' => '1.3.1',
       'puppet:///path/to/elasticsearch-2.4.1.deb' => '2.4.1',
       'file:/path/to/elasticsearch-5.0.0.deb' => '5.0.0',
       '/path/0.0/to/elasticsearch-2.4.1.deb' => '2.4.1',
-      '/path/to/elasticsearch-1-2.4.1.deb' => '2.4.1',
-      '/path/to/elasticsearch-2.4.1-1.deb' => '2.4.1',
-      '/path/to/elasticsearch-5.0.0-1.rpm' => '5.0.0',
+      '/path/to/elasticsearch-3-2.4.1.deb' => '2.4.1',
+      '/path/to/elasticsearch-2.4.1-3.deb' => '2.4.1',
+      '/path/to/elasticsearch-5.0.0-3.rpm' => '5.0.0',
       '/2.x/to/elasticsearch-5.0.0.deb' => '5.0.0'
     }
   }.each do |test_type, versions|
