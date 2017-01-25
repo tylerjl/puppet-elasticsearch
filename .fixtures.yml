@@ -5,7 +5,7 @@ fixtures:
       ref: 0.5.1
     stdlib:
       repo: puppetlabs/stdlib
-      ref: 4.11.0
+      ref: 4.13.1
     java:
       repo: puppetlabs/java
       ref: 1.6.0
