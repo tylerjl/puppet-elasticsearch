@@ -523,7 +523,7 @@ class elasticsearch(
       $manage_repo,
       $package_pin
     )
-   } else {
+  } else {
     validate_bool(
       $manage_repo,
       $package_pin
