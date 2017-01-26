@@ -38,7 +38,7 @@ PuppetSyntax.future_parser = true if ENV['FUTURE_PARSER'] == 'true'
 end
 
 PuppetLint.configuration.ignore_paths = exclude_paths
-PuppetLint.configuration.log_format = "%{path}:%{linenumber}:%{check}:%{KIND}:%{message}"
+PuppetLint.configuration.log_format = "%{path}:%{line}:%{check}:%{KIND}:%{message}"
 
 desc 'remove outdated module fixtures'
 task :spec_prune do
