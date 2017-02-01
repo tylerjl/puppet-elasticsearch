@@ -1,6 +1,5 @@
 Puppet::Type.newtype(:elasticsearch_plugin) do
-
-  @doc = "Plugin installation type"
+  @doc = 'Plugin installation type'
 
   ensurable do
     defaultvalues
@@ -36,4 +35,7 @@ Puppet::Type.newtype(:elasticsearch_plugin) do
     desc 'Override name of the directory created for the plugin'
   end
 
+  newproperty(:version) do
+    desc 'Plugin version.'
+  end
 end

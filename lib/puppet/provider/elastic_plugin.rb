@@ -3,78 +3,78 @@ require 'puppet_x/elastic/es_versioning'
 require 'puppet_x/elastic/plugin_name'
 
 class Puppet::Provider::ElasticPlugin < Puppet::Provider
+  attr_accessor :command_arguments, :homedir, :plugin_dir
 
-  def homedir
-    case Facter.value('osfamily')
-    when 'OpenBSD'
-      '/usr/local/elasticsearch'
-    else
-      '/usr/share/elasticsearch'
+  PROP_FILE = 'plugin-descriptor.properties'.freeze
+
+  def self.homedir
+    @homedir ||= case Facter.value('osfamily')
+                 when 'OpenBSD'
+                   '/usr/local/elasticsearch'
+                 else
+                   '/usr/share/elasticsearch'
+                 end
+  end
+
+  def self.plugin_dir
+    @plugin_dir ||= File.join(homedir, 'plugins')
+  end
+
+  def self.fetch_plugins
+    return [] unless File.directory? plugin_dir
+
+    Dir.entries(plugin_dir).select do |entry|
+      File.directory?(File.join(plugin_dir, entry)) and \
+        File.exist?(File.join(plugin_dir, entry, PROP_FILE))
+    end.map do |plugin|
+      Hash[
+        IO.readlines(
+          File.join(plugin_dir, plugin, PROP_FILE)
+        ).map(&:strip).select do |line|
+          !line.empty? and !line.start_with? '#'
+        end.map do |line|
+          line.split '='
+        end
+      ]
+    end.map do |properties|
+      {
+        :name => properties['name'],
+        :ensure => :present,
+        :provider => name,
+        :version => properties['version']
+      }
     end
   end
 
-  def exists?
-    if !File.exists?(pluginfile)
-      debug "Plugin file #{pluginfile} does not exist"
-      return false
-    elsif File.exists?(pluginfile) && readpluginfile != pluginfile_content
-      debug "Got #{readpluginfile} Expected #{pluginfile_content}. Removing for reinstall"
-      self.destroy
-      return false
-    else
-      debug "Plugin exists"
-      return true
+  def self.instances
+    fetch_plugins.map do |plugin|
+      new plugin
     end
   end
 
-  def pluginfile_content
-    return @resource[:name] if is1x?
-
-    if @resource[:name].split("/").count == 1 # Official plugin
-      version = plugin_version(@resource[:name])
-      return "#{@resource[:name]}/#{version}"
-    else
-      return @resource[:name]
+  def self.prefetch(resources)
+    instances.each do |prov|
+      if resource = resources[prov.name]
+        resource.provider = prov
+      end
     end
   end
 
-  def pluginfile
-    if @resource[:plugin_path]
-      File.join(
-        @resource[:plugin_dir],
-        @resource[:plugin_path],
-        '.name'
-      )
-    else
-      File.join(
-        @resource[:plugin_dir],
-        Puppet_X::Elastic::plugin_name(@resource[:name]),
-        '.name'
-      )
-    end
-  end
-
-  def writepluginfile
-    File.open(pluginfile, 'w') do |file|
-      file.write pluginfile_content
-    end
-  end
-
-  def readpluginfile
-    f = File.open(pluginfile)
-    f.readline
+  def initialize(value = {})
+    super(value)
+    @property_flush = {}
   end
 
   def install1x
     if !@resource[:url].nil?
       [
-        Puppet_X::Elastic::plugin_name(@resource[:name]),
+        Puppet_X::Elastic.plugin_name(@resource[:name]),
         '--url',
         @resource[:url]
       ]
     elsif !@resource[:source].nil?
       [
-        Puppet_X::Elastic::plugin_name(@resource[:name]),
+        Puppet_X::Elastic.plugin_name(@resource[:name]),
         '--url',
         "file://#{@resource[:source]}"
       ]
@@ -101,51 +101,48 @@ class Puppet::Provider::ElasticPlugin < Puppet::Provider
     end
   end
 
-  def proxy_args url
+  def proxy_args(url)
     parsed = URI(url)
-    ['http', 'https'].map do |schema|
+    %w(http https).map do |schema|
       [:host, :port, :user, :password].map do |param|
         option = parsed.send(param)
-        if not option.nil?
+        if !option.nil?
           "-D#{schema}.proxy#{param.to_s.capitalize}=#{option}"
         end
       end
     end.flatten.compact
   end
 
-  def create
-    commands = []
-    if is2x?
-      commands << "-Des.path.conf=#{homedir}"
-      if @resource[:proxy]
-        commands += proxy_args(@resource[:proxy])
+  def flush
+    case @property_flush[:ensure]
+    when :present
+      commands = []
+      if is2x?
+        commands << "-Des.path.conf=#{self.class.homedir}"
+        commands += proxy_args(@resource[:proxy]) if @resource[:proxy]
       end
-    end
-    commands << 'install'
-    commands << '--batch' if batch_capable?
-    commands += is1x? ? install1x : install2x
-    debug("Commands: #{commands.inspect}")
+      commands << 'install'
+      commands << '--batch' if batch_capable?
+      commands += is1x? ? install1x : install2x
+      debug("Commands: #{commands.inspect}")
 
-    retry_count = 3
-    retry_times = 0
-    begin
+      retry_count = 3
+      retry_times = 0
+      begin
+        with_environment do
+          plugin(commands)
+        end
+      rescue Puppet::ExecutionFailure => e
+        retry_times += 1
+        debug("Failed to install plugin. Retrying... #{retry_times} of #{retry_count}")
+        sleep 2
+        retry if retry_times < retry_count
+        raise "Failed to install plugin. Received error: #{e.inspect}"
+      end
+    when :absent
       with_environment do
-        plugin(commands)
+        plugin(['remove', @resource[:name]])
       end
-    rescue Puppet::ExecutionFailure => e
-      retry_times += 1
-      debug("Failed to install plugin. Retrying... #{retry_times} of #{retry_count}")
-      sleep 2
-      retry if retry_times < retry_count
-      raise "Failed to install plugin. Received error: #{e.inspect}"
-    end
-
-    writepluginfile
-  end
-
-  def destroy
-    with_environment do
-      plugin(['remove', @resource[:name]])
     end
   end
 
@@ -181,8 +178,8 @@ class Puppet::Provider::ElasticPlugin < Puppet::Provider
     }
     saved_vars = {}
 
-    if not is2x?
-      env_vars['ES_JAVA_OPTS'] << "-Des.path.conf=#{homedir}"
+    unless is2x?
+      env_vars['ES_JAVA_OPTS'] << "-Des.path.conf=#{self.class.homedir}"
       if @resource[:proxy]
         env_vars['ES_JAVA_OPTS'] += proxy_args(@resource[:proxy])
       end
@@ -201,7 +198,18 @@ class Puppet::Provider::ElasticPlugin < Puppet::Provider
       ENV[env_var] = value
     end
 
-    return ret
+    ret
   end
 
+  def create
+    @property_flush[:ensure] = :present
+  end
+
+  def exists?
+    @property_hash[:ensure] == :present
+  end
+
+  def destroy
+    @property_flush[:ensure] = :absent
+  end
 end
