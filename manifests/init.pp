@@ -492,21 +492,6 @@ class elasticsearch(
     }
   }
 
-  if ($version != false) {
-    case $::osfamily {
-      'RedHat', 'Linux', 'Suse': {
-        if ($version =~ /.+-\d/) {
-          $pkg_version = $version
-        } else {
-          $pkg_version = "${version}-1"
-        }
-      }
-      default: {
-        $pkg_version = $version
-      }
-    }
-  }
-
   # Various parameters governing API access to Elasticsearch
   validate_string($api_protocol, $api_host)
   validate_bool($validate_tls)

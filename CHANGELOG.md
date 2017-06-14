@@ -7,6 +7,7 @@
 
 #### Fixes
 * Fixed dependency order bug with the `elasticsearch_keystore` type and augeas defaults resource.
+* Only set package release numbers as needed for package pinning.
 
 ## 5.3.0 (June 5, 2017)
 
