@@ -48,7 +48,7 @@ class elasticsearch::package::pin {
       } elsif ($elasticsearch::version != false) {
         $release = $elasticsearch::version ? {
           /.+-\d/ => $elasticsearch::version,
-          default => "${elasticsearch::version}-1",
+          default => "${elasticsearch::version}-*",
         }
 
         yum::versionlock {
