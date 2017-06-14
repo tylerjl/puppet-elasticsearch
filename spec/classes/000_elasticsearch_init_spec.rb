@@ -13,7 +13,6 @@ describe 'elasticsearch', :type => 'class' do
         let(:system_service_folder) { '/lib/systemd/system' }
         let(:pkg_ext) { 'deb' }
         let(:pkg_prov) { 'dpkg' }
-        let(:version_add) { '' }
         if facts[:lsbmajdistrelease] >= '8'
           let(:systemd_service_path) { '/lib/systemd/system' }
           test_pid = true
@@ -25,7 +24,6 @@ describe 'elasticsearch', :type => 'class' do
         let(:system_service_folder) { '/lib/systemd/system' }
         let(:pkg_ext) { 'rpm' }
         let(:pkg_prov) { 'rpm' }
-        let(:version_add) { '-1' }
         if facts[:operatingsystemmajrelease] >= '7'
           let(:systemd_service_path) { '/lib/systemd/system' }
           test_pid = true
@@ -36,7 +34,6 @@ describe 'elasticsearch', :type => 'class' do
         let(:defaults_path) { '/etc/sysconfig' }
         let(:pkg_ext) { 'rpm' }
         let(:pkg_prov) { 'rpm' }
-        let(:version_add) { '-1' }
         if facts[:operatingsystem] == 'OpenSuSE' and
            facts[:operatingsystemrelease].to_i <= 12
           let(:systemd_service_path) { '/lib/systemd/system' }
@@ -72,7 +69,7 @@ describe 'elasticsearch', :type => 'class' do
             end
 
             it { should contain_package('elasticsearch')
-              .with(:ensure => "1.0#{version_add}") }
+              .with(:ensure => '1.0') }
 
             if facts[:osfamily] == 'RedHat'
               it { should contain_yum__versionlock(
