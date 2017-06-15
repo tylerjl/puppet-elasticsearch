@@ -68,12 +68,18 @@ describe 'elasticsearch', :type => 'class' do
               )
             end
 
-            it { should contain_package('elasticsearch')
-              .with(:ensure => '1.0') }
+            case facts[:osfamily]
+            when 'RedHat', 'Suse'
+              it { should contain_package('elasticsearch')
+                .with(:ensure => '1.0-1') }
+            else
+              it { should contain_package('elasticsearch')
+                .with(:ensure => '1.0') }
+            end
 
             if facts[:osfamily] == 'RedHat'
               it { should contain_yum__versionlock(
-                '0:elasticsearch-1.0-1.noarch'
+                '0:elasticsearch-1.0-*.noarch'
               ) }
             end
           end
@@ -267,7 +273,7 @@ describe 'elasticsearch', :type => 'class' do
         when 'RedHat'
           context 'is supported' do
             it { should contain_yum__versionlock(
-              '0:elasticsearch-1.6.0-1.noarch'
+              '0:elasticsearch-1.6.0-*.noarch'
             ) }
           end
         else

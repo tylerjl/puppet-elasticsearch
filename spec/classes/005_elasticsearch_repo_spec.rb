@@ -157,7 +157,7 @@ describe 'elasticsearch', :type => 'class' do
                 .with_location("#{repo_base}/#{post_5? ? 'apt' : 'debian'}") }
             when 'RedHat'
               it { should contain_yum__versionlock(
-                "0:elasticsearch-#{version}-1.noarch"
+                "0:elasticsearch-#{version}-*.noarch"
               ) }
               it { should contain_yumrepo('elasticsearch')
                 .with_baseurl("#{repo_base}/#{post_5? ? 'yum' : 'centos'}") }

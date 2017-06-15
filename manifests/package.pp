@@ -58,7 +58,7 @@ class elasticsearch::package {
     } else {
 
       # https://tickets.puppetlabs.com/browse/PUP-1244
-      if versioncmp($::puppetversion, '4.0.0') < 0 and ($::osfamily == 'RedHat' or $::osfamily == 'Suse') {
+      if versioncmp($::puppetversion, '4.0.0') < 0 and ($::osfamily == 'RedHat' or $::osfamily == 'Suse') and $elasticsearch::version !~ /.+-\d/ {
         $package_ensure = "${elasticsearch::version}-1"
       } else {
         $package_ensure = $elasticsearch::version
