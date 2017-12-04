@@ -24,6 +24,7 @@ defaults = {
   '-Dio.netty.recycler.maxCapacityPerThread' => '-Dio.netty.recycler.maxCapacityPerThread=0',
   '-Dlog4j.shutdownHookEnabled' => '-Dlog4j.shutdownHookEnabled=false',
   '-Dlog4j2.disable.jmx' => '-Dlog4j2.disable.jmx=true',
+  '-Djava.io.tmpdir' => '-Djava.io.tmpdir=${ES_TMPDIR}',
   '-Dlog4j.skipJansi' => '-Dlog4j.skipJansi=true',
   'HeapDumpOnOutOfMemoryError' => '-XX:+HeapDumpOnOutOfMemoryError'
 }
