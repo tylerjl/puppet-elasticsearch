@@ -19,7 +19,9 @@ elasticsearch::defaults_location: ~
 elasticsearch::download_tool: ~
 elasticsearch::file_rolling_type: dailyRollingFile
 elasticsearch::indices: {}
-elasticsearch::init_defaults: {}
+elasticsearch::init_defaults:
+  ES_TEMPDIR: "`mktemp -d -t elasticsearch.XXXXXXXX`"
+  ES_HOME: "%{hiera('elasticsearch::homedir')}"
 elasticsearch::init_defaults_file: ~
 elasticsearch::init_template: "%{module_name}/etc/init.d/elasticsearch.systemd.erb"
 elasticsearch::instances: {}

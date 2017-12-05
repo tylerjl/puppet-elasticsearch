@@ -90,7 +90,8 @@ describe 'elasticsearch::instance', :type => 'define' do
           'DATA_DIR'       => '/var/lib/elasticsearch',
           'ES_JVM_OPTIONS' => '/etc/elasticsearch/es-instance/jvm.options',
           'LOG_DIR'        => '/var/log/elasticsearch/es-instance',
-          'ES_HOME'        => '/usr/share/elasticsearch'
+          'ES_HOME'        => '/usr/share/elasticsearch',
+          'ES_TEMPDIR'     => '`mktemp -d -t elasticsearch.XXXXXXXX`'
         }
       )}
     end # of on os context
