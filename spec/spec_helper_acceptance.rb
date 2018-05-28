@@ -125,21 +125,10 @@ hosts.each do |host|
     print '.' while sleep 5
   end
 
-  case host.name
-  when /debian-9/
-    # A few special cases need to be installed from gems (if the distro is
-    # very new and has no puppet repo package or has no upstream packages).
-    install_puppet_from_gem(
-      host,
-      version: Gem.loaded_specs['puppet'].version
-    )
-  else
-    # Otherwise, just use the all-in-one agent package.
-    install_puppet_agent_on(
-      host,
-      puppet_agent_version: to_agent_version(Gem.loaded_specs['puppet'].version)
-    )
-  end
+  # We install via a rubygem for max compatibility, as some distributions lack
+  # a proper Puppet Labs upstream repository.
+  install_puppet_from_gem host, version: Gem.loaded_specs['puppet'].version
+
   # Quit the print thread and include some debugging.
   progress.exit
   puts "done. Installed version #{shell('puppet --version').output}"
