@@ -160,8 +160,8 @@ namespace :artifact do
     begin
       retries ||= 0
       catalog = JSON.parse(
-        open('https://artifacts-api.elastic.co/v1/branches/6.3').read
-      )['latest']
+        open('https://artifacts-api.app.elstc.co/v1/branches/6.3/builds/latest').read
+      )['build']
     rescue
       retry if (retries += 1) < 3
     end
