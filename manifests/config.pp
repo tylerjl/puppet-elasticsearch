@@ -126,11 +126,11 @@ class elasticsearch::config {
 
       # Set the ES_PATH_CONF variable globally in order to permit CLI utilities
       # to continue to operate normally.
-      augeas { "/etc/environment":
-        incl    => "/etc/environment",
+      augeas { '/etc/environment':
+        incl    => '/etc/environment',
         lens    => 'Shellvars.lns',
         changes => [
-          "set ES_PATH_CONF ${::elasticsearch::configdir}"
+          "set ES_PATH_CONF ${::elasticsearch::configdir}",
         ],
       }
 
