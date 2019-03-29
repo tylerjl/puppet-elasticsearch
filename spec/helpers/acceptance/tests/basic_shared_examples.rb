@@ -9,7 +9,6 @@ shared_examples 'basic acceptance tests' do |instances|
   end
 
   %w[
-    /usr/share/elasticsearch/templates_import
     /usr/share/elasticsearch/scripts
   ].each do |dir|
     describe file(dir) do

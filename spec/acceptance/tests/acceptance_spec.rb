@@ -4,7 +4,6 @@ require 'helpers/acceptance/tests/template_shared_examples.rb'
 require 'helpers/acceptance/tests/removal_shared_examples.rb'
 require 'helpers/acceptance/tests/pipeline_shared_examples.rb'
 require 'helpers/acceptance/tests/plugin_shared_examples.rb'
-require 'helpers/acceptance/tests/plugin_upgrade_shared_examples.rb'
 require 'helpers/acceptance/tests/snapshot_repository_shared_examples.rb'
 require 'helpers/acceptance/tests/datadir_shared_examples.rb'
 require 'helpers/acceptance/tests/package_url_shared_examples.rb'
@@ -45,21 +44,6 @@ describe "elasticsearch v#{v[:elasticsearch_full_version]} class" do
                 MANIFEST
               end
 
-    heap = if v[:elasticsearch_major_version] > 2
-             <<-MANIFEST
-               jvm_options => [
-                 '-Xms128m',
-                 '-Xmx128m',
-               ],
-             MANIFEST
-           else
-             <<-MANIFEST
-               init_defaults => {
-                 'ES_HEAP_SIZE' => '128m',
-               },
-             MANIFEST
-           end
-
     <<-MANIFEST
       api_timeout => 60,
       config => {
@@ -67,8 +51,11 @@ describe "elasticsearch v#{v[:elasticsearch_full_version]} class" do
         'http.bind_host' => '0.0.0.0',
       },
       oss => #{v[:oss]},
+      jvm_options => [
+        '-Xms128m',
+        '-Xmx128m',
+      ],
       #{package}
-      #{heap}
     MANIFEST
   end
 
@@ -90,19 +77,10 @@ describe "elasticsearch v#{v[:elasticsearch_full_version]} class" do
 
   include_examples('template operations', es_01, v[:template])
 
-  include_examples('pipeline operations', es_01, v[:pipeline]) if semver(v[:elasticsearch_full_version]) >= semver('5.0.0')
+  include_examples('pipeline operations', es_01, v[:pipeline])
 
-  include_examples('plugin acceptance tests', v[:elasticsearch_plugins]) unless v[:elasticsearch_plugins].empty?
-
-  # Only pre-5.x versions supported versions differing from core ES
-  if semver(v[:elasticsearch_full_version]) < semver('5.0.0')
-    include_examples(
-      'plugin upgrade acceptance tests',
-      :name => 'kopf',
-      :initial => '2.0.1',
-      :upgraded => '2.1.2',
-      :repository => 'lmenezes/elasticsearch'
-    )
+  unless v[:elasticsearch_plugins].empty?
+    include_examples('plugin acceptance tests', v[:elasticsearch_plugins])
   end
 
   include_examples 'snapshot repository acceptance tests'
@@ -116,7 +94,7 @@ describe "elasticsearch v#{v[:elasticsearch_full_version]} class" do
 
   include_examples 'user/group acceptance tests'
 
-  # Security-related tests (shield/x-pack).
+  # Security-related tests.
   #
   # Skip OSS-only distributions since they do not bundle x-pack, and skip
   # snapshots since we they don't recognize prod licenses.

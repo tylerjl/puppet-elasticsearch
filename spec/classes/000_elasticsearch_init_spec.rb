@@ -274,7 +274,6 @@ describe 'elasticsearch', :type => 'class' do
 
         # Base directories
         it { should contain_file('/etc/elasticsearch') }
-        it { should contain_file('/usr/share/elasticsearch/templates_import') }
         it { should contain_file('/usr/share/elasticsearch/scripts') }
         it { should contain_file('/usr/share/elasticsearch') }
         it { should contain_file('/usr/share/elasticsearch/lib') }

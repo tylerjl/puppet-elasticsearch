@@ -157,7 +157,7 @@ define elasticsearch::instance (
   Integer                            $rolling_file_max_backup_index = $elasticsearch::rolling_file_max_backup_index,
   String                             $rolling_file_max_file_size    = $elasticsearch::rolling_file_max_file_size,
   Optional[Hash]                     $secrets                       = undef,
-  Optional[Enum['shield', 'x-pack']] $security_plugin               = $elasticsearch::security_plugin,
+  Optional[Enum['x-pack']]           $security_plugin               = $elasticsearch::security_plugin,
   Optional[String]                   $service_flags                 = undef,
   Boolean                            $ssl                           = false,
   Elasticsearch::Status              $status                        = $elasticsearch::status,
@@ -180,7 +180,7 @@ define elasticsearch::instance (
   }
 
   if $ssl or ($system_key != undef) {
-    if $security_plugin == undef or ! ($security_plugin in ['shield', 'x-pack']) {
+    if $security_plugin == undef or ! ($security_plugin in ['x-pack']) {
       fail("\"${security_plugin}\" is not a valid security_plugin parameter value")
     }
   }
@@ -279,14 +279,7 @@ define elasticsearch::instance (
         $_keystore_path = $keystore_path
       }
 
-      if $security_plugin == 'shield' {
-        $tls_config = {
-          'shield.transport.ssl'         => true,
-          'shield.http.ssl'              => true,
-          'shield.ssl.keystore.path'     => $_keystore_path,
-          'shield.ssl.keystore.password' => $keystore_password,
-        }
-      } elsif $security_plugin == 'x-pack' {
+      if $security_plugin == 'x-pack' {
         $tls_config = {
           'xpack.security.transport.ssl.enabled' => true,
           'xpack.security.http.ssl.enabled'      => true,

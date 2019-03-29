@@ -212,7 +212,6 @@ describe 'elasticsearch::instance', :type => 'define' do
 
           it { should contain_exec('mkdir_configdir_elasticsearch_es-instance') }
           it { should contain_file('/etc/elasticsearch-config').with(:ensure => 'directory') }
-          it { should contain_file('/usr/share/elasticsearch/templates_import').with(:ensure => 'directory') }
           it { should contain_file('/etc/elasticsearch-config/es-instance').with(:ensure => 'directory') }
           it { should contain_datacat_fragment('main_config_es-instance') }
           it { should contain_datacat('/etc/elasticsearch-config/es-instance/elasticsearch.yml') }
@@ -678,15 +677,15 @@ describe 'elasticsearch::instance', :type => 'define' do
             let(:pre_condition) do
               %(
                 class { 'elasticsearch':
-                  security_plugin => 'shield',
+                  security_plugin => 'x-pack',
                   system_key => '/tmp/key'
                 }
               )
             end
 
-            it { should contain_file('/etc/elasticsearch/es-instance/shield') }
+            it { should contain_file('/etc/elasticsearch/es-instance/x-pack') }
             it { should contain_file(
-              '/etc/elasticsearch/es-instance/shield/system_key'
+              '/etc/elasticsearch/es-instance/x-pack/system_key'
             ).with(
               :source => '/tmp/key',
               :mode => '0400',
@@ -714,8 +713,8 @@ describe 'elasticsearch::instance', :type => 'define' do
       end
 
       describe 'recursive configuration directory management' do
-        ['shield', 'x-pack'].each do |plugin|
-          context 'shield' do
+        ['x-pack'].each do |plugin|
+          context plugin do
             context 'without resource notifications' do
               let(:pre_condition) do
                 %(

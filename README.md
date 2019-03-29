@@ -21,7 +21,7 @@
 
 This module sets up [Elasticsearch](https://www.elastic.co/overview/elasticsearch/) instances with additional resource for plugins, templates, and more.
 
-This module is actively tested against Elasticsearch 2.x, 5.x, and 6.x.
+This module is actively tested against Elasticsearch 5.x, and 6.x, and latest snapshot versions.
 
 ## Setup
 
@@ -36,7 +36,7 @@ This module is actively tested against Elasticsearch 2.x, 5.x, and 6.x.
 * Elasticsearch templates.
 * Elasticsearch ingest pipelines.
 * Elasticsearch index settings.
-* Elasticsearch Shield/X-Pack users, roles, and certificates.
+* Elasticsearch X-Pack users, roles, and certificates.
 * Elasticsearch licenses.
 * Elasticsearch keystores.
 
@@ -45,7 +45,7 @@ This module is actively tested against Elasticsearch 2.x, 5.x, and 6.x.
 * The [stdlib](https://forge.puppetlabs.com/puppetlabs/stdlib) Puppet library.
 * [richardc/datacat](https://forge.puppetlabs.com/richardc/datacat)
 * [Augeas](http://augeas.net/)
-* [puppetlabs-java_ks](https://forge.puppetlabs.com/puppetlabs/java_ks) for Shield/X-Pack certificate management (optional).
+* [puppetlabs-java_ks](https://forge.puppetlabs.com/puppetlabs/java_ks) for X-Pack certificate management (optional).
 
 In addition, remember that Elasticsearch requires Java to be installed.
 We recommend managing your Java installation with the [puppetlabs-java](https://forge.puppetlabs.com/puppetlabs/java) module.
@@ -256,7 +256,7 @@ elasticsearch::plugin { 'elasticsearch/elasticsearch-cloud-aws/2.4.1': }
 
 Please note that this does not work when you specify 'latest' as a version number.
 
-#### ES 2.x, 5.x, and 6.x official plugins
+#### ES 5.x and 6.x official plugins
 For the Elasticsearch commercial plugins you can refer them to the simple name.
 
 See [Plugin installation](https://www.elastic.co/guide/en/elasticsearch/plugins/current/installation.html) for more details.
@@ -509,7 +509,7 @@ When a repository is not available or preferred you can install the packages fro
 
 ```puppet
 class { 'elasticsearch':
-  package_url => 'https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.2.deb',
+  package_url => 'https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.7.0.deb',
   proxy_url   => 'http://proxy.example.com:8080/',
 }
 ```
@@ -523,7 +523,7 @@ Setting the port in the `proxy_url` is mandatory.
 ##### puppet://
 ```puppet
 class { 'elasticsearch':
-  package_url => 'puppet:///path/to/elasticsearch-1.4.2.deb'
+  package_url => 'puppet:///path/to/elasticsearch-6.7.0.deb'
 }
 ```
 
@@ -531,13 +531,13 @@ class { 'elasticsearch':
 
 ```puppet
 class { 'elasticsearch':
-  package_url => 'file:/path/to/elasticsearch-1.4.2.deb'
+  package_url => 'file:/path/to/elasticsearch-6.7.0.deb'
 }
 ```
 
 ### JVM Configuration
 
-When configuring Elasticsearch's memory usage, you can do so by either changing init defaults for Elasticsearch 1.x/2.x (see the [following example](#hash-representation)), or modify it globally in 5.x using `jvm.options`:
+JVM options such as heap size should be configured through the `jvm_options` parameter (the `ES_HEAP_SIZE` method has been deprecated by Elasticsearch).
 
 ```puppet
 class { 'elasticsearch':
@@ -579,7 +579,7 @@ class { 'elasticsearch':
 
 ```puppet
 $config_hash = {
-  'ES_HEAP_SIZE' => '30g',
+  'ES_JAVA_OPTS' => '-Dhttp.proxyHost=https://foo.bar',
 }
 
 class { 'elasticsearch':
@@ -591,15 +591,15 @@ Note: `init_defaults` hash can be passed to the main class and to the instance.
 
 ## Advanced features
 
-### X-Pack/Shield
+### X-Pack
 
-[X-Pack](https://www.elastic.co/products/x-pack) and [Shield](https://www.elastic.co/products/shield) file-based users, roles, and certificates can be managed by this module.
+[X-Pack](https://www.elastic.co/products/x-pack) file-based users, roles, and certificates can be managed by this module.
 
 **Note**: If you are planning to use these features, it is *highly recommended* you read the following documentation to understand the caveats and extent of the resources available to you.
 
 #### Getting Started
 
-Although this module can handle several types of Shield/X-Pack resources, you are expected to manage the plugin installation and versions for your deployment.
+Although this module can handle several types of X-Pack resources, you are expected to manage the plugin installation and versions for your deployment.
 For example, the following manifest will install Elasticseach with a single instance running X-Pack:
 
 ```puppet
@@ -611,26 +611,12 @@ elasticsearch::instance { 'es-01': }
 elasticsearch::plugin { 'x-pack': instances => 'es-01' }
 ```
 
-The following manifest will do the same, but with Shield:
-
-```puppet
-class { 'elasticsearch':
-  security_plugin => 'shield',
-}
-
-elasticsearch::instance { 'es-01': }
-
-Elasticsearch::Plugin { instances => ['es-01'], }
-elasticsearch::plugin { 'license': }
-elasticsearch::plugin { 'shield': }
-```
-
 The following examples will assume the preceding resources are part of your puppet manifest.
 
 #### Roles
 
-Roles in the file realm (the `esusers` realm in Shield) can be managed using the `elasticsearch::role` type.
-For example, to create a role called `myrole`, you could use the following resource in X-Pack:
+Roles in the file realm can be managed using the `elasticsearch::role` type.
+For example, to create a role called `myrole`, you could use the following resource:
 
 ```puppet
 elasticsearch::role { 'myrole':
@@ -644,23 +630,10 @@ elasticsearch::role { 'myrole':
 }
 ```
 
-And in Shield:
-
-```puppet
-elasticsearch::role { 'myrole':
-  privileges => {
-    'cluster' => 'monitor',
-    'indices' => {
-      '*' => 'read'
-    }
-  }
-}
-```
-
 This role would grant users access to cluster monitoring and read access to all indices.
-See the [Shield](https://www.elastic.co/guide/en/shield/index.html) or [X-Pack](https://www.elastic.co/guide/en/x-pack/current/xpack-security.html) documentation for your version to determine what `privileges` to use and how to format them (the Puppet hash representation will simply be translated into yaml.)
+See the [X-Pack](https://www.elastic.co/guide/en/x-pack/index.html) documentation for your version to determine what `privileges` to use and how to format them (the Puppet hash representation will simply be translated into yaml.)
 
-**Note**: The Puppet provider for `esusers`/`users` has fine-grained control over the `roles.yml` file and thus will leave the default roles Shield installs in-place.
+**Note**: The Puppet provider for `users` has fine-grained control over the `roles.yml` file and thus will leave the default roles that are installed by default in-place.
 If you would like to explicitly purge the default roles (leaving only roles managed by puppet), you can do so by including the following in your manifest:
 
 ```puppet
@@ -693,8 +666,6 @@ elasticsearch::role { 'logstash':
 }
 ```
 
-**Note**: Observe the brackets around `indices` in the preceding role definition; which is an array of hashes per the format in Shield 2.3.x. Follow the documentation to determine the correct formatting for your version of Shield or X-Pack.
-
 If you'd like to keep the mappings file purged of entries not under Puppet's control, you should use the following `resources` declaration because mappings are a separate low-level type:
 
 ```puppet
@@ -715,7 +686,7 @@ elasticsearch::user { 'myuser':
 }
 ```
 
-The `password` parameter will also accept password hashes generated from the `esusers`/`users` utility and ensure the password is kept in-sync with the Shield `users` file for all Elasticsearch instances.
+The `password` parameter will also accept password hashes generated from the `users` utility and ensure the password is kept in-sync with the `users` file for all Elasticsearch instances.
 
 ```puppet
 elasticsearch::user { 'myuser':
@@ -724,7 +695,7 @@ elasticsearch::user { 'myuser':
 }
 ```
 
-**Note**: When using the `esusers`/`users` provider (the default for plaintext passwords), Puppet has no way to determine whether the given password is in-sync with the password hashed by Shield/X-Pack.
+**Note**: When using the `users` provider (the default for plaintext passwords), Puppet has no way to determine whether the given password is in-sync with the password hashed by X-Pack.
 In order to work around this, the `elasticsearch::user` resource has been designed to accept refresh events in order to update password values.
 This is not ideal, but allows you to instruct the resource to change the password when needed.
 For example, to update the aforementioned user's password, you could include the following your manifest:
@@ -751,13 +722,13 @@ elasticsearch::instance { 'es-01':
 }
 ```
 
-**Note**: Setting up a proper CA and certificate infrastructure is outside the scope of this documentation, see the aforementioned Shield or X-Pack guide for more information regarding the generation of these certificate files.
+**Note**: Setting up a proper CA and certificate infrastructure is outside the scope of this documentation, see the aforementioned X-Pack guide for more information regarding the generation of these certificate files.
 
 The module will set up a keystore file for the node to use and set the relevant options in `elasticsearch.yml` to enable TLS/SSL using the certificates and key provided.
 
 #### System Keys
 
-Shield/X-Pack system keys can be passed to the module, where they will be placed into individual instance configuration directories.
+X-Pack system keys can be passed to the module, where they will be placed into individual instance configuration directories.
 This can be set at the `elasticsearch` class and inherited across all instances:
 
 ```puppet
@@ -776,7 +747,7 @@ elasticsearch::instance { 'es-01':
 
 ### Licensing
 
-If you use the aforementioned Shield/X-Pack plugins, you may need to install a user license to leverage particular features outside of a trial license.
+If you use the aforementioned X-Pack plugins, you may need to install a user license to leverage particular features outside of a trial license.
 This module can handle installation of licenses without the need to write custom `exec` or `curl` code to install license data.
 
 You may instruct the module to install a license through the `elasticsearch::license` parameter:

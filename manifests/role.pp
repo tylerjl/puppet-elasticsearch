@@ -1,4 +1,4 @@
-# Manage shield/x-pack roles.
+# Manage x-pack roles.
 #
 # @param ensure
 #   Whether the role should be present or not.

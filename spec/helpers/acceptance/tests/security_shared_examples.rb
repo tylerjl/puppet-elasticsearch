@@ -79,7 +79,7 @@ end
 
 shared_examples 'security acceptance tests' do |default_instances|
   describe 'security plugin operations', :if => vault_available?, :then_purge => true, :with_license => true, :with_certificates => true do
-    superuser_role = v[:elasticsearch_major_version] > 2 ? 'superuser' : 'admin'
+    superuser_role = 'superuser'
     rand_string = lambda { [*('a'..'z')].sample(8).join }
 
     admin_user = rand_string.call
@@ -90,7 +90,7 @@ shared_examples 'security acceptance tests' do |default_instances|
       <<-MANIFEST
         license                 => file('#{v[:elasticsearch_license_path]}'),
         restart_on_change       => true,
-        security_plugin         => '#{v[:elasticsearch_major_version] > 2 ? 'x-pack' : 'shield'}',
+        security_plugin         => 'x-pack',
         api_basic_auth_password => '#{admin_password}',
         api_basic_auth_username => '#{admin_user}',
         api_ca_file             => '#{@tls[:ca][:cert][:path]}',
@@ -100,12 +100,7 @@ shared_examples 'security acceptance tests' do |default_instances|
     end
 
     let(:security_plugins) do
-      if v[:elasticsearch_major_version] <= 2
-        <<-MANIFEST
-          elasticsearch::plugin { 'elasticsearch/license/latest' :  }
-          elasticsearch::plugin { 'elasticsearch/shield/latest' : }
-        MANIFEST
-      elsif semver(v[:elasticsearch_full_version].split('-').first) < semver('6.3.0')
+      if semver(v[:elasticsearch_full_version].split('-').first) < semver('6.3.0')
         <<-MANIFEST
           elasticsearch::plugin { 'x-pack' :  }
         MANIFEST
@@ -232,11 +227,7 @@ shared_examples 'security acceptance tests' do |default_instances|
         end
 
         ssl_instances = default_instances.map do |instance, meta|
-          new_config = if v[:elasticsearch_major_version] > 2
-                         { 'xpack.ssl.verification_mode' => 'none' }
-                       else
-                         { 'shield.ssl.hostname_verification' => false }
-                       end
+          new_config = { 'xpack.ssl.verification_mode' => 'none' }
           [
             instance,
             {

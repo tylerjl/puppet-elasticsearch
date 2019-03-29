@@ -68,35 +68,12 @@ class Puppet::Provider::ElasticPlugin < Puppet::Provider
     @resource[:plugin_path] || Puppet_X::Elastic.plugin_name(@resource[:name])
   end
 
-  # Intelligently returns the correct installation arguments for version 1
-  # version of Elasticsearch.
-  #
-  # @return [Array<String>]
-  #   arguments to pass to the plugin installation utility
-  def install1x
-    if !@resource[:url].nil?
-      [
-        Puppet_X::Elastic.plugin_name(@resource[:name]),
-        '--url',
-        @resource[:url]
-      ]
-    elsif !@resource[:source].nil?
-      [
-        Puppet_X::Elastic.plugin_name(@resource[:name]),
-        '--url',
-        "file://#{@resource[:source]}"
-      ]
-    else
-      [@resource[:name]]
-    end
-  end
-
   # Intelligently returns the correct installation arguments for version 2
   # version of Elasticsearch.
   #
   # @return [Array<String>]
   #   arguments to pass to the plugin installation utility
-  def install2x
+  def plugin_name_to_cli_arg
     if !@resource[:url].nil?
       [@resource[:url]]
     elsif !@resource[:source].nil?
@@ -122,13 +99,8 @@ class Puppet::Provider::ElasticPlugin < Puppet::Provider
   end
 
   # Install this plugin on the host.
-  # rubocop:disable Metrics/CyclomaticComplexity
   def create
-    commands = []
-    commands += proxy_args(@resource[:proxy]) if is2x? and @resource[:proxy]
-    commands << 'install'
-    commands << '--batch' if batch_capable?
-    commands += is1x? ? install1x : install2x
+    commands = ['install', '--batch'] + plugin_name_to_cli_arg
     debug("Commands: #{commands.inspect}")
 
     retry_count = 3
@@ -161,19 +133,6 @@ class Puppet::Provider::ElasticPlugin < Puppet::Provider
     )
   end
 
-  def is1x?
-    Puppet::Util::Package.versioncmp(es_version, '2.0.0') < 0
-  end
-
-  def is2x?
-    (Puppet::Util::Package.versioncmp(es_version, '2.0.0') >= 0) && \
-      (Puppet::Util::Package.versioncmp(es_version, '3.0.0') < 0)
-  end
-
-  def batch_capable?
-    Puppet::Util::Package.versioncmp(es_version, '2.2.0') >= 0
-  end
-
   # Run a command wrapped in necessary env vars
   def with_environment(&block)
     env_vars = {
@@ -186,10 +145,7 @@ class Puppet::Provider::ElasticPlugin < Puppet::Provider
       env_vars['JAVA_HOME'] = @resource[:java_home]
     end
 
-    if !is2x? and @resource[:proxy]
-      env_vars['ES_JAVA_OPTS'] += proxy_args(@resource[:proxy])
-    end
-
+    env_vars['ES_JAVA_OPTS'] += proxy_args(@resource[:proxy]) if @resource[:proxy]
     env_vars['ES_JAVA_OPTS'] = env_vars['ES_JAVA_OPTS'].join(' ')
 
     env_vars.each do |env_var, value|

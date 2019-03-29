@@ -9,7 +9,7 @@ describe 'elasticsearch::license', :type => 'class' do
         facts.merge('scenario' => '', 'common' => '')
       end
 
-      %w[shield x-pack].each do |plugin|
+      %w[x-pack].each do |plugin|
         context "with #{plugin} plugin" do
           let(:params) do
             {

@@ -361,7 +361,7 @@ class elasticsearch (
   Optional[Hash]                                  $secrets,
   Optional[String]                                $security_logging_content,
   Optional[String]                                $security_logging_source,
-  Optional[Enum['shield', 'x-pack']]              $security_plugin,
+  Optional[Enum['x-pack']]                        $security_plugin,
   Enum['init', 'openbsd', 'openrc', 'systemd']    $service_provider,
   Hash                                            $snapshot_repositories,
   Elasticsearch::Status                           $status,

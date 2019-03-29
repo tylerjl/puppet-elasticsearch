@@ -6,7 +6,7 @@ describe 'elasticsearch::role' do
   let(:pre_condition) do
     <<-EOS
       class { 'elasticsearch':
-        security_plugin => 'shield',
+        security_plugin => 'x-pack',
       }
     EOS
   end
@@ -66,10 +66,10 @@ describe 'elasticsearch::role' do
           let(:pre_condition) do
             <<-EOS
               class { 'elasticsearch':
-                security_plugin => 'shield',
+                security_plugin => 'x-pack',
               }
               elasticsearch::instance { 'es-security-role': }
-              elasticsearch::plugin { 'shield': instances => 'es-security-role' }
+              elasticsearch::plugin { 'x-pack': instances => 'es-security-role' }
               elasticsearch::template { 'foo': content => {"foo" => "bar"} }
               elasticsearch::user { 'elastic':
                 password => 'foobar',
@@ -78,18 +78,18 @@ describe 'elasticsearch::role' do
             EOS
           end
 
-          it { should contain_elasticsearch__plugin('shield') }
+          it { should contain_elasticsearch__plugin('x-pack') }
           it { should contain_elasticsearch__role('elastic_role')
             .that_comes_before([
             'Elasticsearch::Template[foo]',
             'Elasticsearch::User[elastic]'
           ]).that_requires([
-            'Elasticsearch::Plugin[shield]'
+            'Elasticsearch::Plugin[x-pack]'
           ])}
 
           include_examples 'instance', 'es-security-role', :systemd
           it { should contain_file(
-            '/etc/elasticsearch/es-security-role/shield'
+            '/etc/elasticsearch/es-security-role/x-pack'
           ) }
         end
 
@@ -97,10 +97,10 @@ describe 'elasticsearch::role' do
           let(:pre_condition) do
             <<-EOS
               class { 'elasticsearch':
-                security_plugin => 'shield',
+                security_plugin => 'x-pack',
               }
               elasticsearch::instance { 'es-security-role': }
-              elasticsearch::plugin { 'shield':
+              elasticsearch::plugin { 'x-pack':
                 ensure => 'absent',
                 instances => 'es-security-role',
               }
@@ -112,14 +112,14 @@ describe 'elasticsearch::role' do
             EOS
           end
 
-          it { should contain_elasticsearch__plugin('shield') }
+          it { should contain_elasticsearch__plugin('x-pack') }
           include_examples 'instance', 'es-security-role', :systemd
           # TODO: Uncomment once upstream issue is fixed.
           # https://github.com/rodjek/rspec-puppet/issues/418
-          # it { should contain_elasticsearch__shield__role('elastic_role')
+          # it { should contain_elasticsearch__x-pack__role('elastic_role')
           #   .that_comes_before([
           #   'Elasticsearch::Template[foo]',
-          #   'Elasticsearch::Plugin[shield]',
+          #   'Elasticsearch::Plugin[x-pack]',
           #   'Elasticsearch::Shield::User[elastic]'
           # ])}
         end

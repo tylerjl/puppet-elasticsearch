@@ -66,7 +66,6 @@ describe 'elasticsearch facts' do
       .with('/etc/elasticsearch/es-ssl/elasticsearch.yml', any_args)
       .and_return(
         'xpack.security.http.ssl.enabled' => true,
-        'shield.http.ssl'                 => true,
         'http.port'                       => '9443'
       )
 

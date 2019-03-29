@@ -1,7 +1,7 @@
 require_relative '../../helpers/unit/type/elasticsearch_rest_shared_examples'
 
 describe Puppet::Type.type(:elasticsearch_license) do
-  %w[x-pack shield].each do |plugin|
+  %w[x-pack].each do |plugin|
     let(:resource_name) { plugin }
 
     include_examples 'REST API types', 'license', :content

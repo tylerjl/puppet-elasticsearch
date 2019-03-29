@@ -2,6 +2,10 @@
 
 ### Migration Guide
 
+#### Elasticsearch 2.x no longer supported
+
+Elasticsearch 2.x is end-of-life and should be upgraded to a supported version. This includes support being removed for Shield.
+
 #### Puppet < 4.10 No Longer Supported
 
 Puppet 4.10.0 is the new minimum required version of Puppet.

@@ -56,18 +56,6 @@ describe 'elasticsearch', :type => 'class' do
       ) }
 
       include_examples 'security plugin logging',
-                       'shield',
-                       'logging.yml',
-                       'content' => {
-                         :manifest => "one: two\nfoo: bar\n",
-                         :value => "one: two\nfoo: bar\n"
-                       },
-                       'source' => {
-                         :manifest => '/foo/bar.yml',
-                         :value => '/foo/bar.yml'
-                       }
-
-      include_examples 'security plugin logging',
                        'x-pack',
                        'log4j2.properties',
                        'content' => {

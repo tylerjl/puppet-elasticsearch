@@ -1,7 +1,6 @@
 require_relative '../../../helpers/unit/provider/elasticsearch_rest_shared_examples'
 
 {
-  'shield' => 'license',
   'xpack' => 'xpack/license'
 }.each_pair do |plugin, endpoint|
   describe Puppet::Type.type(:elasticsearch_license).provider(plugin.to_sym) do

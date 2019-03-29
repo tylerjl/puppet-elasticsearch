@@ -50,11 +50,6 @@ class elasticsearch::config {
         ensure => 'directory',
         group  => $elasticsearch::elasticsearch_group,
         owner  => $elasticsearch::elasticsearch_user;
-      "${elasticsearch::homedir}/templates_import":
-        ensure => 'directory',
-        group  => $elasticsearch::elasticsearch_group,
-        owner  => $elasticsearch::elasticsearch_user,
-        mode   => '0755';
       "${elasticsearch::homedir}/scripts":
         ensure => 'directory',
         group  => $elasticsearch::elasticsearch_group,
@@ -132,7 +127,7 @@ class elasticsearch::config {
       }
     }
 
-    if $::elasticsearch::security_plugin != undef and ($::elasticsearch::security_plugin in ['shield', 'x-pack']) {
+    if $::elasticsearch::security_plugin != undef and ($::elasticsearch::security_plugin in ['x-pack']) {
       file { "${::elasticsearch::configdir}/${::elasticsearch::security_plugin}" :
         ensure => 'directory',
         owner  => 'root',
@@ -143,16 +138,7 @@ class elasticsearch::config {
 
     # Define logging config file for the in-use security plugin
     if $::elasticsearch::security_logging_content != undef or $::elasticsearch::security_logging_source != undef {
-      if $::elasticsearch::security_plugin == undef or ! ($::elasticsearch::security_plugin in ['shield', 'x-pack']) {
-        fail("\"${::elasticsearch::security_plugin}\" is not a valid security_plugin parameter value")
-      }
-
-      $_security_logging_file = $::elasticsearch::security_plugin ? {
-        'shield' => 'logging.yml',
-        default => 'log4j2.properties'
-      }
-
-      file { "/etc/elasticsearch/${::elasticsearch::security_plugin}/${_security_logging_file}" :
+      file { "/etc/elasticsearch/${::elasticsearch::security_plugin}/log4j2.properties" :
         content => $::elasticsearch::security_logging_content,
         source  => $::elasticsearch::security_logging_source,
       }
