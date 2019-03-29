@@ -10,7 +10,7 @@ shared_examples 'plugin provider' do |version|
     describe 'setup' do
       it 'installs with default parameters' do
         expect(provider).to receive(:plugin).with(
-          ['install', resource_name, '--batch']
+          ['install', '--batch', resource_name]
         )
         provider.create
       end
