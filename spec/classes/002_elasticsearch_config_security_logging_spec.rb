@@ -16,7 +16,7 @@ describe 'elasticsearch', :type => 'class' do
         :common => ''
       ) }
 
-      describe "security logging configuration file for x-pack" do
+      describe 'security logging configuration file for x-pack' do
         {
           'content' => {
             :manifest => "one = two\nfoo = bar\n",
@@ -35,18 +35,18 @@ describe 'elasticsearch', :type => 'class' do
               }
             end
 
-            it { should contain_file("/etc/elasticsearch/x-pack")
-                .with_ensure('directory')}
+            it { should contain_file('/etc/elasticsearch/x-pack')
+              .with_ensure('directory')}
 
             case param_type
             when 'source'
               it 'sets the source for the file resource' do
-                should contain_file("/etc/elasticsearch/x-pack/log4j2.properties")
+                should contain_file('/etc/elasticsearch/x-pack/log4j2.properties')
                   .with_source(params[:value])
               end
             when 'content'
               it 'sets logging file yaml content' do
-                should contain_file("/etc/elasticsearch/x-pack/log4j2.properties")
+                should contain_file('/etc/elasticsearch/x-pack/log4j2.properties')
                   .with_content(params[:value])
               end
             end
