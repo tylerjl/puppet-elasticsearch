@@ -267,11 +267,3 @@ RSpec.configure do |c|
     end
   end
 end
-
-# Java 8 is only easy to manage on recent distros
-def v5x_capable?
-  (f['os']['family'] == 'RedHat' and \
-    not (f['os']['name'] == 'OracleLinux' and \
-    f['os']['release']['major'] == '6')) or \
-    f.dig 'os', 'distro', 'codename' == 'xenial'
-end

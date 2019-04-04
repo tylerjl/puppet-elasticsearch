@@ -31,15 +31,16 @@ def to_agent_version(puppet_version)
   }[puppet_version]
 end
 
-def derive_artifact_urls_for(full_version, plugins = ['analysis-icu'])
-  derive_full_package_url(full_version).merge(
+def derive_artifact_urls_for(full_version, oss_package, plugins = ['analysis-icu'])
+  derive_full_package_url(full_version, oss_package).merge(
     derive_plugin_urls_for(full_version, plugins)
   )
 end
 
-def derive_full_package_url(full_version, extensions = %w[deb rpm])
+def derive_full_package_url(full_version, oss_package, extensions = %w[deb rpm])
+  oss_suffix = oss_package ? '-oss' : ''
   extensions.map do |ext|
-    url = "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-#{full_version}.#{ext}"
+    url = "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch#{oss_suffix}-#{full_version}.#{ext}"
     [url, File.basename(url)]
   end.to_h
 end
