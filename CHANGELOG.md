@@ -1,6 +1,12 @@
 ## x.x.x (Month Day, Year)
 
-### Migration Guide
+#### Features
+* Support for Puppet 6
+
+#### Fixes
+* Fix "Could not autoload" errors in some custom types/providers.
+
+## 6.3.4 (August 7, 2019)
 
 #### Elasticsearch 2.x no longer supported
 
@@ -16,8 +22,6 @@ Puppet 4.10.0 is the new minimum required version of Puppet.
 * Plugin configuration files are now more well-supported by respecting subdirectory copy recursion. See `elasticsearch::configdir_recurselimit` for more information.
 * An error related to elasticsearch_roles and `yield` errors has been fixed
 * Correctly permit instances to be set to `absent` without errors.
-
-#### Features
 
 ## 6.3.3 (September 7, 2018)
 
